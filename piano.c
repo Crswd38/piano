@@ -17,6 +17,8 @@ void arrow_key_control(int ocde, int *base_octave, int *time_delay);
 void play_note(int note, int duration);
 
 int main(void){
+    SetConsoleOutputCP(949);
+    SetConsoleCP(949);
     display_manual();
     practice_piano();
 
@@ -25,7 +27,7 @@ int main(void){
 
     file = fopen("score.txt", "r");
     if (file == NULL) {
-        printf("íŒŒì¼ì„ ì—´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.\n");
+        printf("ÆÄÀÏÀ» ¿­ ¼ö ¾ø½À´Ï´Ù.\n");
         return 1;
     }
 
@@ -37,27 +39,27 @@ int main(void){
     return 0;
 }
 
-//í…ŒìŠ¤íŠ¸
+//Å×½ºÆ®
 void play_note(int note, int duration) {
-    int frequency = (int)(440 * pow(2, (note - 69) / 12.0)); // MIDI ë…¸íŠ¸ë¥¼ ì£¼íŒŒìˆ˜ë¡œ ë³€í™˜
-    Beep(frequency, duration); // ì£¼íŒŒìˆ˜ì™€ ì§€ì† ì‹œê°„ìœ¼ë¡œ ìŒì„ ì—°ì£¼
+    int frequency = (int)(440 * pow(2, (note - 69) / 12.0)); // MIDI ³ëÆ®¸¦ ÁÖÆÄ¼ö·Î º¯È¯
+    Beep(frequency, duration); // ÁÖÆÄ¼ö¿Í Áö¼Ó ½Ã°£À¸·Î À½À» ¿¬ÁÖ
 }
 
-//ì½˜ì†” ì°½ì—ì„œ ì»¤ì„œì˜ ìœ„ì¹˜ë¥¼ (x, y) ì¢Œí‘œë¡œ ì´ë™ì‹œí‚¤ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤.
+//ÄÜ¼Ö Ã¢¿¡¼­ Ä¿¼­ÀÇ À§Ä¡¸¦ (x, y) ÁÂÇ¥·Î ÀÌµ¿½ÃÅ°´Â ÇÔ¼öÀÔ´Ï´Ù.
 void gotoxy(int x, int y){
     COORD Pos = { x - 1, y - 1 };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
-/*ê±´ë°˜ì„ ëˆ„ë¥´ë©´ ìŒê³„ë¥¼ ì¶œë ¥í•˜ëŠ” í”„ë¡œê·¸ë¨ì˜ ì„¤ëª… í•¨ìˆ˜ display_manual*/
+/*°Ç¹İÀ» ´©¸£¸é À½°è¸¦ Ãâ·ÂÇÏ´Â ÇÁ·Î±×·¥ÀÇ ¼³¸í ÇÔ¼ö display_manual*/
 void display_manual(void){
-    printf("í‚¤ë³´ë“œì˜ ìˆ«ìë¥¼ ëˆ„ë¥´ë©´\n");
-    printf("í•´ë‹¹ ê±´ë°˜ì— ìŒì´ í‘œì‹œë˜ê³ ,\n");
-    printf("í‚¤â†‘: í•œ ì˜¥íƒ€ë¸Œ ìœ„ë¡œ, í‚¤â†“:í•œ ì˜¥íƒ€ë¸Œ ì•„ë˜ë¡œ\n");
-    printf("í‚¤â†: ìŒì˜ ì§€ì—°ì‹œê°„ ì§§ê²Œ, í‚¤â†’:ìŒì˜ ì§€ì—°ì‹œê°„ ê¸¸ê²Œ\n");
+    printf("Å°º¸µåÀÇ ¼ıÀÚ¸¦ ´©¸£¸é\n");
+    printf("ÇØ´ç °Ç¹İ¿¡ À½ÀÌ Ç¥½ÃµÇ°í,\n");
+    printf("Å°¡è: ÇÑ ¿ÁÅ¸ºê À§·Î, Å°¡é:ÇÑ ¿ÁÅ¸ºê ¾Æ·¡·Î\n");
+    printf("Å°¡ç: À½ÀÇ Áö¿¬½Ã°£ Âª°Ô, Å°¡æ:À½ÀÇ Áö¿¬½Ã°£ ±æ°Ô\n");
 }
 
-/*ì˜¥íƒ€ë¸Œì™€ ìŒì˜ ì§€ì—°ì‹œê°„ì„ ì œì–´í•˜ëŠ” í•¨ìˆ˜ practice_piano*/
+/*¿ÁÅ¸ºê¿Í À½ÀÇ Áö¿¬½Ã°£À» Á¦¾îÇÏ´Â ÇÔ¼ö practice_piano*/
 void practice_piano(void){
     int index[] = { 0, 2, 4, 5, 7, 9, 11, 12 };
     int freq[8], code, i;
@@ -77,12 +79,12 @@ void practice_piano(void){
         }else
             arrow_key_control(code, &base_octave, &time_delay);
         gotoxy(1, 10);
-        printf("í˜„ì¬ ì˜¥íƒ€ë¸Œ:%d, ", base_octave);
-        printf("í˜„ì¬ ì§€ì—°ì‹œê°„:%4.2fì´ˆ", time_delay / 1000.);
+        printf("ÇöÀç ¿ÁÅ¸ºê:%d, ", base_octave);
+        printf("ÇöÀç Áö¿¬½Ã°£:%4.2fÃÊ", time_delay / 1000.);
     }while (code != 27);
 }
 
-/*ì˜¥íƒ€ë¸Œì— ë”°ë¥¸ ìŒê²Œë³„ ì£¼íŒŒìˆ˜ë¥¼ ê³„ì‚°í•˜ì—¬ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜ calc_frequency*/
+/*¿ÁÅ¸ºê¿¡ µû¸¥ À½°Ôº° ÁÖÆÄ¼ö¸¦ °è»êÇÏ¿© ¹İÈ¯ÇÏ´Â ÇÔ¼ö calc_frequency*/
 int calc_frequency(int octave, int inx){
     double do_scale = 32.7032;
     double ratio = pow(2., 1 / 12.), temp;
@@ -95,10 +97,10 @@ int calc_frequency(int octave, int inx){
     return (int)temp;
 }
 
-/*ê±´ë°˜ ìœ„ì— ìˆ«ìì™€ ìŒê³„ë¥¼ ì¶œë ¥í•˜ëŠ” í•¨ìˆ˜ display_piano_keyboard*/
+/*°Ç¹İ À§¿¡ ¼ıÀÚ¿Í À½°è¸¦ Ãâ·ÂÇÏ´Â ÇÔ¼ö display_piano_keyboard*/
 void display_piano_keyboard(void){
     int i;
-    char code[8][4] = { "ë„", "ë ˆ", "ë¯¸", "íŒŒ", "ì†”", "ë¼", "ì‹œ", "ë„" };
+    char code[8][4] = { "µµ", "·¹", "¹Ì", "ÆÄ", "¼Ö", "¶ó", "½Ã", "µµ" };
     for (i = 0; i < 8; i++) {
         gotoxy(3 + i * 4, 6);
         printf("%2d", i + 1);
@@ -109,13 +111,13 @@ void display_piano_keyboard(void){
     }
 }
 
-/*ìˆ«ì í‚¤ë¥¼ ëˆ„ë¥´ë©´ í•´ë‹¹ ê±´ë°˜ì— â–²ì„ ì¶œë ¥í•˜ëŠ” í•¨ìˆ˜ touch_keyboard*/
+/*¼ıÀÚ Å°¸¦ ´©¸£¸é ÇØ´ç °Ç¹İ¿¡ ¡ãÀ» Ãâ·ÂÇÏ´Â ÇÔ¼ö touch_keyboard*/
 void touch_keyboard(int code){
     gotoxy(3 + code * 4, 8);
     printf("%c%c", 0xa1, 0xe3);
 }
 
-/*í™•ì¥ëœ ë°”ë‘‘íŒ ê·¸ë¦¬ê¸° í•¨ìˆ˜ draw_check02*/
+/*È®ÀåµÈ ¹ÙµÏÆÇ ±×¸®±â ÇÔ¼ö draw_check02*/
 void draw_check02(int c, int r){
     int i, j;
     unsigned char a = 0xa6;
@@ -162,25 +164,25 @@ void draw_check02(int c, int r){
     printf("\n");
 }
 
-/*í™”ì‚´í‘œ í‚¤ë¡œ ì˜¥íƒ€ë¸Œì™€ ìŒì˜ ì§€ì—°ì‹œê°„ ì œì–´ í•¨ìˆ˜ arrow_key_control*/
+/*È­»ìÇ¥ Å°·Î ¿ÁÅ¸ºê¿Í À½ÀÇ Áö¿¬½Ã°£ Á¦¾î ÇÔ¼ö arrow_key_control*/
 void arrow_key_control(int code, int *base_octave, int *time_delay){
     switch (code) {
-        case 72: //ìœ„ìª½ í™”ì‚´í‘œ ì˜¥íƒ€ë¸Œ ì¦ê°€
+        case 72: //À§ÂÊ È­»ìÇ¥ ¿ÁÅ¸ºê Áõ°¡
             *base_octave += 1;
             if (6 < *base_octave)
                 *base_octave = 6;
             break;
-        case 75: //ì™¼ìª½ í™”ì‚´í‘œ ì§€ì—°ì‹œê°„ ê°ì†Œ
+        case 75: //¿ŞÂÊ È­»ìÇ¥ Áö¿¬½Ã°£ °¨¼Ò
             *time_delay -= 250;
             if (*time_delay < 250)
                 *time_delay = 250;
             break;
-        case 77: //ì˜¤ë¥¸ìª½ í™”ì‚´í‘œ ì§€ì—°ì‹œê°„ ì¦ê°€
+        case 77: //¿À¸¥ÂÊ È­»ìÇ¥ Áö¿¬½Ã°£ Áõ°¡
             *time_delay += 250;
             if (1000 < *time_delay)
                 *time_delay = 1000;
             break;
-        case 80: //ì•„ë˜ìª½ í™”ì‚´í‘œ ì˜¥íƒ€ë¸Œ ê°ì†Œ
+        case 80: //¾Æ·¡ÂÊ È­»ìÇ¥ ¿ÁÅ¸ºê °¨¼Ò
             *base_octave -= 1;
             if (*base_octave <= 2)
                 *base_octave = 2;
