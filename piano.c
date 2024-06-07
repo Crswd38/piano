@@ -1,193 +1,212 @@
-
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include <Windows.h>
+#include <windows.h>
 
-void draw_check02(int c, int r);
-void gotoxy(int x, int y);
-void display_piano_keyboard(void);
-void touch_keyboard(int code);
-void display_manual(void);
-void practice_piano(void);
-int calc_frequency(int octave, int inx);
-void arrow_key_control(int ocde, int *base_octave, int *time_delay);
-void play_note(int note, int duration);
+void draw_piano(int c, int r); // ê±´ë°˜ ê·¸ë¦¬ëŠ” í•¨ìˆ˜
+void draw_piano2(void); // ê±´ë°˜ ìœ„ì— ìˆ«ìì™€ ìŒê³„ë¥¼ ì¶œë ¥í•˜ëŠ” í•¨ìˆ˜
+void cursor(int x, int y); //ì½˜ì†” ì°½ì—ì„œ ì»¤ì„œì˜ ìœ„ì¹˜ë¥¼ (x, y) ì¢Œí‘œë¡œ ì´ë™ì‹œí‚¤ëŠ” í•¨ìˆ˜
+void touch_keyboard(int code); // ìˆ«ì í‚¤ë¥¼ ëˆ„ë¥´ë©´ í•´ë‹¹ ê±´ë°˜ì— â–²ì„ ì¶œë ¥í•˜ëŠ” í•¨ìˆ˜
+void manual(void); // ì‚¬ìš©ë²• ì„¤ëª… ì‘ì„± í•¨ìˆ˜
+void practice_piano(void); // ì˜¥íƒ€ë¸Œì™€ ìŒì˜ ì§€ì—°ì‹œê°„ì„ ì œì–´í•˜ëŠ” í•¨ìˆ˜
+void arrow_key_control(int ocde, int* base_octave, int* time_delay); // í™”ì‚´í‘œ í‚¤ ì…ë ¥ ì œì–´ í•¨ìˆ˜
+int calc_frequency(int octave, int inx); // ì£¼íŒŒìˆ˜ë¥¼ ê³„ì‚°í•˜ëŠ” í•¨ìˆ˜
+int play_score(void); // ì•…ë³´ë¥¼ ì‹¤í–‰í•˜ëŠ” í•¨ìˆ˜
 
-int main(void){
+int main(void) {
     SetConsoleOutputCP(949);
     SetConsoleCP(949);
-    display_manual();
+
+    manual();
     practice_piano();
 
-    FILE *file;
-    int note, duration;
+    return 0;
+}
 
-    file = fopen("score.txt", "r");
+// ì•…ë³´ë¥¼ ì‹¤í–‰í•˜ëŠ” í•¨ìˆ˜
+int play_score(void) {
+    FILE* file;
+    int duration, octave, note;
+
+    fopen_s(&file, "score.txt", "r");
     if (file == NULL) {
-        printf("ÆÄÀÏÀ» ¿­ ¼ö ¾ø½À´Ï´Ù.\n");
+        printf("íŒŒì¼ì„ ì—´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.\n");
         return 1;
     }
 
-    while (fscanf(file, "%d %d", &note, &duration) == 2) {
-        play_note(note, duration);
+    while (fscanf_s(file, "%d %d %d", &octave, &note, &duration) == 3) {
+        int frequency = calc_frequency(octave, note);
+        Beep(frequency, duration);
     }
 
     fclose(file);
     return 0;
 }
 
-//Å×½ºÆ®
-void play_note(int note, int duration) {
-    int frequency = (int)(440 * pow(2, (note - 69) / 12.0)); // MIDI ³ëÆ®¸¦ ÁÖÆÄ¼ö·Î º¯È¯
-    Beep(frequency, duration); // ÁÖÆÄ¼ö¿Í Áö¼Ó ½Ã°£À¸·Î À½À» ¿¬ÁÖ
-}
-
-//ÄÜ¼Ö Ã¢¿¡¼­ Ä¿¼­ÀÇ À§Ä¡¸¦ (x, y) ÁÂÇ¥·Î ÀÌµ¿½ÃÅ°´Â ÇÔ¼öÀÔ´Ï´Ù.
-void gotoxy(int x, int y){
+// ì½˜ì†” ì°½ì—ì„œ ì»¤ì„œì˜ ìœ„ì¹˜ë¥¼ (x, y)ì¢Œí‘œë¡œ ì´ë™ì‹œí‚¤ëŠ” í•¨ìˆ˜
+void cursor(int x, int y) {
     COORD Pos = { x - 1, y - 1 };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
-/*°Ç¹İÀ» ´©¸£¸é À½°è¸¦ Ãâ·ÂÇÏ´Â ÇÁ·Î±×·¥ÀÇ ¼³¸í ÇÔ¼ö display_manual*/
-void display_manual(void){
-    printf("Å°º¸µåÀÇ ¼ıÀÚ¸¦ ´©¸£¸é\n");
-    printf("ÇØ´ç °Ç¹İ¿¡ À½ÀÌ Ç¥½ÃµÇ°í,\n");
-    printf("Å°¡è: ÇÑ ¿ÁÅ¸ºê À§·Î, Å°¡é:ÇÑ ¿ÁÅ¸ºê ¾Æ·¡·Î\n");
-    printf("Å°¡ç: À½ÀÇ Áö¿¬½Ã°£ Âª°Ô, Å°¡æ:À½ÀÇ Áö¿¬½Ã°£ ±æ°Ô\n");
+// ì‚¬ìš©ë²• ì„¤ëª… ì‘ì„± í•¨ìˆ˜
+void manual(void) {
+    printf("\n");
+    printf(" í‚¤ë³´ë“œì˜ ìˆ«ìë¥¼ ëˆ„ë¥´ë©´\n");
+    printf(" í•´ë‹¹ ê±´ë°˜ì— ìŒì´ í‘œì‹œë˜ê³ ,\n");
+    printf(" í‚¤â†‘: í•œ ì˜¥íƒ€ë¸Œ ìœ„ë¡œ,     í‚¤â†“:í•œ ì˜¥íƒ€ë¸Œ ì•„ë˜ë¡œ\n");
+    printf(" í‚¤â†: ìŒì˜ ì§€ì—°ì‹œê°„ ì§§ê²Œ, í‚¤â†’:ìŒì˜ ì§€ì—°ì‹œê°„ ê¸¸ê²Œ\n");
 }
 
-/*¿ÁÅ¸ºê¿Í À½ÀÇ Áö¿¬½Ã°£À» Á¦¾îÇÏ´Â ÇÔ¼ö practice_piano*/
-void practice_piano(void){
+// ì˜¥íƒ€ë¸Œì™€ ìŒì˜ ì§€ì—°ì‹œê°„ì„ ì œì–´í•˜ëŠ” í•¨ìˆ˜
+void practice_piano(void) {
     int index[] = { 0, 2, 4, 5, 7, 9, 11, 12 };
     int freq[8], code, i;
-    int base_octave = 4,
-    time_delay = 500;
-    draw_check02(8, 2);
-    display_piano_keyboard();
+    int base_octave = 4, time_delay = 500;
+
+    draw_piano(8, 2);
+    draw_piano2();
+
     do {
         for (i = 0; i < 8; i++)
             freq[i] = calc_frequency(base_octave, index[i]);
-        code = getch();
-        if('1' <= code&&code <= '8') {
+        code = _getch();
+        if ('1' <= code && code <= '8') {
             code -= 49;
             touch_keyboard(code);
             Beep(freq[code], time_delay);
-            display_piano_keyboard();
-        }else
+            draw_piano2();
+        }else if ('9' == code) {
+            play_score();
+        }else {
             arrow_key_control(code, &base_octave, &time_delay);
-        gotoxy(1, 10);
-        printf("ÇöÀç ¿ÁÅ¸ºê:%d, ", base_octave);
-        printf("ÇöÀç Áö¿¬½Ã°£:%4.2fÃÊ", time_delay / 1000.);
-    }while (code != 27);
+        }
+        cursor(1, 13);
+        printf(" í˜„ì¬ ì˜¥íƒ€ë¸Œ:%d, ", base_octave);
+        printf("í˜„ì¬ ì§€ì—°ì‹œê°„:%4.2fì´ˆ", time_delay / 1000.);
+
+    } while (code != 27);
 }
 
-/*¿ÁÅ¸ºê¿¡ µû¸¥ À½°Ôº° ÁÖÆÄ¼ö¸¦ °è»êÇÏ¿© ¹İÈ¯ÇÏ´Â ÇÔ¼ö calc_frequency*/
-int calc_frequency(int octave, int inx){
+// ì£¼íŒŒìˆ˜ë¥¼ ê³„ì‚°í•˜ëŠ” í•¨ìˆ˜
+int calc_frequency(int octave, int inx) {
     double do_scale = 32.7032;
     double ratio = pow(2., 1 / 12.), temp;
     int i;
-    temp = do_scale*pow(2, octave - 1);
-    for (i = 0; i < inx; i++){
+    temp = do_scale * pow(2, octave - 1);
+    for (i = 0; i < inx; i++) {
         temp = (int)(temp + 0.5);
         temp *= ratio;
     }
     return (int)temp;
 }
 
-/*°Ç¹İ À§¿¡ ¼ıÀÚ¿Í À½°è¸¦ Ãâ·ÂÇÏ´Â ÇÔ¼ö display_piano_keyboard*/
-void display_piano_keyboard(void){
-    int i;
-    char code[8][4] = { "µµ", "·¹", "¹Ì", "ÆÄ", "¼Ö", "¶ó", "½Ã", "µµ" };
-    for (i = 0; i < 8; i++) {
-        gotoxy(3 + i * 4, 6);
-        printf("%2d", i + 1);
-    }
-    for (i = 0; i < 8; i++) {
-        gotoxy(3 + i * 4, 8);
-        printf("%s", code[i]);
-    }
-}
-
-/*¼ıÀÚ Å°¸¦ ´©¸£¸é ÇØ´ç °Ç¹İ¿¡ ¡ãÀ» Ãâ·ÂÇÏ´Â ÇÔ¼ö touch_keyboard*/
-void touch_keyboard(int code){
-    gotoxy(3 + code * 4, 8);
-    printf("%c%c", 0xa1, 0xe3);
-}
-
-/*È®ÀåµÈ ¹ÙµÏÆÇ ±×¸®±â ÇÔ¼ö draw_check02*/
-void draw_check02(int c, int r){
+// ê±´ë°˜ ê·¸ë¦¬ëŠ” í•¨ìˆ˜
+void draw_piano(int c, int r) {
     int i, j;
     unsigned char a = 0xa6;
     unsigned char b[12];
     for (i = 1; i < 12; i++)
         b[i] = 0xa0 + i;
+    printf("\n");
     printf("%c%c", a, b[3]);
     for (i = 0; i < c - 1; i++) {
         printf("%c%c", a, b[1]);
+        printf("%c%c", a, b[1]);
+        printf("%c%c", a, b[1]);
         printf("%c%c", a, b[8]);
     }
+    printf("%c%c", a, b[1]);
+    printf("%c%c", a, b[1]);
     printf("%c%c", a, b[1]);
     printf("%c%c", a, b[4]);
     printf("\n");
     for (i = 0; i < r - 1; i++) {
         printf("%c%c", a, b[2]);
         for (j = 0; j < c; j++) {
-            printf("  ");
+            printf("   ");
             printf("%c%c", a, b[2]);
         }
         printf("\n");
         printf("%c%c", a, b[7]);
         for (j = 0; j < c - 1; j++) {
             printf("%c%c", a, b[1]);
+            printf("%c%c", a, b[1]);
+            printf("%c%c", a, b[1]);
             printf("%c%c", a, b[11]);
         }
+        printf("%c%c", a, b[1]);
+        printf("%c%c", a, b[1]);
         printf("%c%c", a, b[1]);
         printf("%c%c", a, b[9]);
         printf("\n");
     }
     printf("%c%c", a, b[2]);
     for (j = 0; j < c; j++) {
-        printf("  ");
+        printf("   ");
         printf("%c%c", a, b[2]);
     }
     printf("\n");
     printf("%c%c", a, b[6]);
     for (i = 0; i < c - 1; i++) {
         printf("%c%c", a, b[1]);
+        printf("%c%c", a, b[1]);
+        printf("%c%c", a, b[1]);
         printf("%c%c", a, b[10]);
     }
+    printf("%c%c", a, b[1]);
+    printf("%c%c", a, b[1]);
     printf("%c%c", a, b[1]);
     printf("%c%c", a, b[5]);
     printf("\n");
 }
 
-/*È­»ìÇ¥ Å°·Î ¿ÁÅ¸ºê¿Í À½ÀÇ Áö¿¬½Ã°£ Á¦¾î ÇÔ¼ö arrow_key_control*/
-void arrow_key_control(int code, int *base_octave, int *time_delay){
+// ê±´ë°˜ ìœ„ì— ìˆ«ìì™€ ìŒê³„ë¥¼ ì¶œë ¥í•˜ëŠ” í•¨ìˆ˜
+void draw_piano2(void) {
+    int i;
+    char code[8][4] = { "ë„", "ë ˆ", "ë¯¸", "íŒŒ", "ì†”", "ë¼", "ì‹œ", "ë„" };
+    for (i = 0; i < 8; i++) {
+        cursor(3 + i * 4, 8);
+        printf("%2d", i + 1);
+    }
+    for (i = 0; i < 8; i++) {
+        cursor(3 + i * 4, 10);
+        printf("%s", code[i]);
+    }
+}
+
+// ìˆ«ì í‚¤ë¥¼ ëˆ„ë¥´ë©´ í•´ë‹¹ ê±´ë°˜ì— â–²ì„ ì¶œë ¥í•˜ëŠ” í•¨ìˆ˜
+void touch_keyboard(int code) {
+    cursor(3 + code * 4, 10);
+    printf("%c%c", 0xa1, 0xe3);
+}
+
+// í™”ì‚´í‘œ í‚¤ ì…ë ¥ ì œì–´ í•¨ìˆ˜
+void arrow_key_control(int code, int* base_octave, int* time_delay) {
     switch (code) {
-        case 72: //À§ÂÊ È­»ìÇ¥ ¿ÁÅ¸ºê Áõ°¡
-            *base_octave += 1;
-            if (6 < *base_octave)
-                *base_octave = 6;
-            break;
-        case 75: //¿ŞÂÊ È­»ìÇ¥ Áö¿¬½Ã°£ °¨¼Ò
-            *time_delay -= 250;
-            if (*time_delay < 250)
-                *time_delay = 250;
-            break;
-        case 77: //¿À¸¥ÂÊ È­»ìÇ¥ Áö¿¬½Ã°£ Áõ°¡
-            *time_delay += 250;
-            if (1000 < *time_delay)
-                *time_delay = 1000;
-            break;
-        case 80: //¾Æ·¡ÂÊ È­»ìÇ¥ ¿ÁÅ¸ºê °¨¼Ò
-            *base_octave -= 1;
-            if (*base_octave <= 2)
-                *base_octave = 2;
-            break;
-        default:
-            break;
+    case 72: //ìœ„ìª½ í™”ì‚´í‘œ ì˜¥íƒ€ë¸Œ ì¦ê°€
+        *base_octave += 1;
+        if (6 < *base_octave)
+            *base_octave = 6;
+        break;
+    case 75: //ì™¼ìª½ í™”ì‚´í‘œ ì§€ì—°ì‹œê°„ ê°ì†Œ
+        *time_delay -= 250;
+        if (*time_delay < 250)
+            *time_delay = 250;
+        break;
+    case 77: //ì˜¤ë¥¸ìª½ í™”ì‚´í‘œ ì§€ì—°ì‹œê°„ ì¦ê°€
+        *time_delay += 250;
+        if (1000 < *time_delay)
+            *time_delay = 1000;
+        break;
+    case 80: //ì•„ë˜ìª½ í™”ì‚´í‘œ ì˜¥íƒ€ë¸Œ ê°ì†Œ
+        *base_octave -= 1;
+        if (*base_octave <= 2)
+            *base_octave = 2;
+        break;
+    default:
+        break;
     }
 }
